@@ -58,10 +58,11 @@ def about(request):
 
 
 def search_Result(request):
-    if request.method== 'POST':
-        searh_query = request.POST['search']
-        query_result = Product.objects.filter(name__startswith=searh_query)
-        return render(request,'bookshop/search.html',{'query_result':query_result,'searh_query':searh_query})
+    if request.method == 'POST':
+        search_query = request.POST['search']
+        query_result = Product.objects.filter(name__icontains=search_query)
+        return render(request, 'bookshop/search.html', {'query_result': query_result, 'search_query': search_query})
+
 
 
 #review 
