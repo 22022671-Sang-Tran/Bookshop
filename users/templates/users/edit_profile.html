@@ -2,13 +2,38 @@
 {% load static %}
 <title>{% block title %} Edit Profile | Bookshop{% endblock%}</title>
 {% block content %}
-<form method="post">
-    {% csrf_token %}
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" value="{{ user.username }}" required><br>
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" value="{{ user.email }}" required><br>
-    <button type="submit">Save changes</button>
-</form>
-<a href="{% url 'dashboard' %}">Back to Dashboard</a>
+<section class="my_account_area pt--80 pb--55 bg--white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <!-- Include flash messages -->
+                {% include 'users/alerts.html' %}
+                <!-- End include flash messages -->
+
+                <h1>Edit Profile</h1>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">New Password:</label>
+                        <input type="password" id="password" name="password" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password:</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control">
+                    </div>
+                    <button type="submit" class="ps-btn pl-60 pr-60">Save changes</button>
+                </form>
+                <a href="{% url 'dashboard' %}" class="btn btn-link mt-3">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

@@ -2,5 +2,32 @@
 {% load static %}
 <title>{% block title %} Dashboard | Bookshop{% endblock%}</title>
 {% block content %}
-    <a href="{% url 'edit_profile' %}">Edit Profile</a>
+<section class="my_account_area pt--80 pb--55 bg--white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-12">
+                <!-- Include flash messages -->
+                {% include 'users/alerts.html' %}
+                <!-- End include flash messages -->
+
+                <h1>My Dashboard</h1>
+                <form>
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" value="********" class="form-control" readonly>
+                    </div>
+                    <a href="{% url 'edit_profile' %}" class="ps-btn pl-60 pr-60">Edit Profile</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
