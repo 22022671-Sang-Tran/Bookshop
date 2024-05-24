@@ -1,81 +1,55 @@
-from django.shortcuts import render,redirect
-from django.shortcuts import render, get_object_or_404
-from .models import Category, Product, Review
-from django.views.generic import  DetailView
-from cart.forms import CartAddProductForm
-from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib import messages, auth
+from django.contrib.auth import logout as auth_logout
+from .forms import UserRegistrationForm
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
-
-def index(request):
-    top_five_products = Product.objects.all()[:8]
-    # showing only 6 categoires in menu bar 
-    categories = Category.objects.all()[:6]
-    products = Product.objects.all()
-    return render(request,'bookshop/index.html',{'categories':categories,'products':products,'top_five_products':top_five_products})
-    
-
-
-    #total products display function
-def product_list(request,category_slug=None):
-    category = None
-    categories = Category.objects.all()
-    products = Product.objects.all()
-    if category_slug:
-        category = get_object_or_404(Category,slug=category_slug)
-        products = products.filter(category=category)
-    return render(request,'bookshop/products_list.html',{'category':category,
-                                                     'categories':categories,
-                                                     'products':products})
-
-    #single product vi
-
-def product_detail(request, slug):
-    product = get_object_or_404(Product,slug=slug,available=True)
-    cart_product_form = CartAddProductForm()
-    
-    #getting product id for showing all review realted to one product
-    reviewproduct = Product.objects.filter(slug=slug)
-    prid = None
-    for product_id in reviewproduct:
-        prid = product_id.id
-
-    all_reviews = Review.objects.filter(product=prid)
-    
-    return render(request,'bookshop/product_detail.html',{'product': product,'cart_product_form': cart_product_form,'all_reviews':all_reviews})
-
-def all_Categories(request):
-    categories = Category.objects.all()
-    return render(request,'bookshop/all_category_list.html',{'categories':categories})
-
-
-
-def contact_us(request):
-    return render(request,'bookshop/contact_us.html')
-
-def about(request):
-    return render(request,'bookshop/about.html')
-
-
-def search_Result(request):
+def register(request):
     if request.method == 'POST':
-        search_query = request.POST['search']
-        query_result = Product.objects.filter(name__icontains=search_query)
-        return render(request, 'bookshop/search.html', {'query_result': query_result, 'search_query': search_query})
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'You are now registered and can login.')
+            return redirect('login')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'users/registration.html', {'form': form})
 
-
-
-#review 
-def Comment_Review(request,product_id):
+def login(request):
     if request.method == 'POST':
-        name = request.POST['name']
+        username = request.POST['username']
+        password = request.POST['password']
+        user = auth.authenticate(username=username, password=password)
+
+        if user is not None:
+            auth.login(request, user)
+            messages.success(request, 'You are now logged in.')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    return render(request, 'users/login.html')
+
+@login_required 
+def dashboard(request):
+    return render(request, 'users/dashboard.html')
+
+def logout(request):
+    auth.logout(request)
+    messages.success(request, 'You have been logged out.')
+    return redirect('index')
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        username = request.POST['username']
         email = request.POST['email']
-        rating = request.POST['rating']
-        review_comment = request.POST['review']
-        product = get_object_or_404(Product,id=product_id)
-        comment_review = Review.objects.create(product=product,name=name,email=email,rating=rating,review_comment=review_comment)
-        message = messages.success(request,"Your reviews is submitted")
+
+        user = request.user
+        user.username = username
+        user.email = email
+        user.save()
         
-        return render(request,'bookshop/product_detail.html')
-    
-    return render(request,'bookshop/product_detail.html')
+        messages.success(request, 'Your profile was successfully updated!')
+        return redirect('dashboard')
+
+    return render(request, 'users/edit_profile.html')
