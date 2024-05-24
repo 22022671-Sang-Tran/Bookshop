@@ -1,40 +1,55 @@
-import braintree
-from django.shortcuts import render, redirect, get_object_or_404
-from django.conf import settings
-from orders.models import Order
-from cart.cart import Cart
-# instantiate Braintree payment gateway
-gateway = braintree.BraintreeGateway(settings.BRAINTREE_CONF)
+from django.shortcuts import render,redirect,HttpResponse
+from django.contrib.auth.models import User
+from django.contrib import messages,auth
+# Create your views here.
 
-def payment_process(request):
-    cart = Cart(request)
-    order_id = request.session.get('order_id')
-    order = get_object_or_404(Order, id=order_id)
-    total_cost = order.get_total_cost()
+
+def register(request):
     if request.method == 'POST':
-        # retrieve nonce
-        nonce = request.POST.get('payment_method_nonce', None)
-        # create and submit transaction
-        result = gateway.transaction.sale({'amount': f'{total_cost:.2f}',
-        'payment_method_nonce': nonce,'options':{'submit_for_settlement': True}})
-        if result.is_success:
-            # mark the order as paid
-            order.paid = True
-            # store the unique transaction id
-            order.braintree_id = result.transaction.id
-            order.save()
-            # launch asynchronous task
-            cart.clear()
-            return redirect('done')
+        #Get form Values 
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+        #check if password match
+        if password == confirm_password:
+            #check username
+            if User.objects.filter(username=username).exists():
+                messages.error(request,"That username is taken")
+                return redirect('register')
+            else:
+                if User.objects.filter(email=email).exists():
+                    messages.error(request,"That email is being used.")
+                    return redirect('register')
+                else:
+                    user = User.objects.create_user(username=username,email=email,password=password)
+                    user.save()
+                    messages.success(request,'You are now registered and can login in')
+                    return redirect('login')
         else:
-            return redirect('canceled')
+            messages.error(request, "Password do not match.")
+            return redirect('register')
     else:
-        # generate token
-        client_token = gateway.client_token.generate()
-        return render(request,'payment/process.html',{'order': order,'client_token': client_token})
+        return render(request,'users/registration.html')
 
-def payment_done(request):
-    return render(request, 'payment/done.html')
 
-def payment_canceled(request):
-    return render(request, 'payment/canceled.html')
+def login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = auth.authenticate(username=username,password=password)
+
+        if user is not None:
+            auth.login(request,user)
+            #messages.success(request,'You are Now Logged in')
+            return redirect('dashboard')
+        else:
+            messages.error(request,"Invalid Credentials")
+            return redirect('login')
+    else:
+       return render(request,'users/login.html') 
+    
+
+
+def dashboard(request):
+    return HttpResponse("dashboard")
