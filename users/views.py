@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages, auth
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import logout as auth_logout, update_session_auth_hash
 from .forms import UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 
@@ -36,17 +36,24 @@ def dashboard(request):
 def logout(request):
     auth.logout(request)
     messages.success(request, 'You have been logged out.')
-    return redirect('index')
+    return redirect('login')
 
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
         username = request.POST['username']
         email = request.POST['email']
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
 
         user = request.user
         user.username = username
         user.email = email
+
+        if password and password == confirm_password:
+            user.set_password(password)
+            update_session_auth_hash(request, user)  # Important, to keep the user logged in after password change
+
         user.save()
         
         messages.success(request, 'Your profile was successfully updated!')
