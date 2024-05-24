@@ -1,12 +1,16 @@
-from django.urls import path,include
+from django.urls import path, include
 from . import views
-from bookshop.views import index
-from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
-    path('users/register',views.register,name='register'),
-    path('users/login',views.login,name='login'),
-    path('users/dashboard',index,name='dashboard'),
-    path('users/logout', views.logout, name='logout'),
+    path('',views.index, name='index'),
+    path('product/detail/<slug:slug>', views.product_detail,name='product_detail'),
+    path('product/all-products',views.product_list,name='product_list'),
+    path('category/<slug:category_slug>',views.product_list,name='category_detail'),
+    path('all-categories/',views.all_Categories,name='all_categories'),
+    path('contact-us/',views.contact_us,name='contact_us'),
+    path('search/',views.search_Result,name='search'),
+    path('product/detail/review/<int:product_id>',views.Comment_Review,name='review'),
+    path('about/',views.about,name='about'),
+    path('users/', include('users.urls')),
 ]
