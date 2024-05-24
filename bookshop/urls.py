@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('search/',views.search_Result,name='search'),
     path('product/detail/review/<int:product_id>',views.Comment_Review,name='review'),
     path('about/',views.about,name='about'),
+    path('users/', include('users.urls')),
 ]
