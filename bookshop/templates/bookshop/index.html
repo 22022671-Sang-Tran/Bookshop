@@ -83,25 +83,28 @@
                 <h2 class="ps-section__title">FOR YOU</h2>
                 <p>Discover our specially curated selection just for you</p>
             </div>
-            <div class="ps-section__content">
-                <div class="row">
-                    {% for product in bookshop_product %}
-                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                            <div class="ps-product--fashion">
-                                <div class="ps-product__thumbnail">
-                                    <a class="ps-product__overlay" href="{% url 'product_detail' product.slug %}"></a>
-                                    <img class="lazy" src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="">
-                                    <ul class="ps-product__actions"></ul>
-                                </div>
-                                <div class="ps-product__content">
-                                    <a class="ps-product__title" href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
-                                    <p class="ps-product__price">${{ product.price }}</p><br>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+            <!-- products  -->
+<div class="ps-section__content">
+    <div class="row">
+        {% for product in products|slice:":3" %}
+            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                <div class="ps-product--fashion">
+                    <div class="ps-product__thumbnail">
+                        <a class="ps-product__overlay" href="{% url 'product_detail' product.slug %}"></a>
+                        <img class="lazy" src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" alt="">
+                        <ul class="ps-product__actions">
+                            <!-- Actions like add to cart, wishlist can be added here -->
+                        </ul>
+                    </div>
+                    <div class="ps-product__content">
+                        <a class="ps-product__title" href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+                        <p class="ps-product__price">${{ product.price }}</p>
+                    </div>
                 </div>
-            </div>            
+            </div>
+        {% endfor %}
+    </div>
+</div>           
         </div>
     </div>
 {% endblock %}

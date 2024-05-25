@@ -66,16 +66,17 @@ def search_Result(request):
 
 
 #review 
-def Comment_Review(request,product_id):
+def Comment_Review(request, product_id):
     if request.method == 'POST':
-        name = request.POST['name']
-        email = request.POST['email']
-        rating = request.POST['rating']
-        review_comment = request.POST['review']
-        product = get_object_or_404(Product,id=product_id)
-        comment_review = Review.objects.create(product=product,name=name,email=email,rating=rating,review_comment=review_comment)
-        message = messages.success(request,"Your reviews is submitted")
-        
-        return render(request,'bookshop/product_detail.html')
-    
-    return render(request,'bookshop/product_detail.html')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        rating = request.POST.get('rating')
+        review_comment = request.POST.get('review')
+        product = get_object_or_404(Product, id=product_id)
+        comment_review = Review.objects.create(product=product, name=name, email=email, rating=rating, review_comment=review_comment)
+        messages.success(request, "Your review has been submitted.")
+        # Redirect back to the product detail page after submitting the review
+        return HttpResponseRedirect(reverse('product_detail', args=[product.slug]))
+    else:
+        # Handle GET requests here if needed
+        pass
